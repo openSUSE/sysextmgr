@@ -118,7 +118,7 @@ The search order for configuration files:
 ### Example configuration file:
 ```
 [default]
-url=https://download.opensuse.org/repositories/home:/kukuk:/sysext/mkosi/
+url=https://download.opensuse.org/repositories/devel:/microos:/sysext/images/
 
 [sysextmgrd]
 verbose=true
