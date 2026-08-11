@@ -517,8 +517,11 @@ image_remote_metadata(const char *url, struct image_entry ***res, size_t *nr,
 	  if (name == NULL)
 	    return -ENOMEM;
 
-	  /* create "debug-tools" from "debug-tools-23.7.x86-64.raw" */
+	  /* create "debug-tools" from "debug-tools-23.7.x86-64.{sysext.}raw" */
 	  p = strrchr(name, '.'); /* raw */
+	  if (p)
+	    *p = '\0';
+	  p = endswith(name, ".sysext");
 	  if (p)
 	    *p = '\0';
 	  p = strrchr(name, '.'); /* arch */
