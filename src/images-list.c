@@ -250,7 +250,6 @@ image_read_metadata(const char *image_name, struct image_deps **res)
     {
       /* The meta data is not cached. So extract it from image. */
       fd = open(cache_filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
-
       if (fd < 0)
         {
           log_msg(LOG_ERR, "Cannot open filename %s: %s", cache_filename, strerror (errno));
@@ -262,19 +261,25 @@ image_read_metadata(const char *image_name, struct image_deps **res)
         {
           log_msg(LOG_ERR, "Failed to extract extension-release from '%s': %s",
 		  image_name, strerror(-r));
+	  unlink(cache_filename);
 	  return r;
         }
       else if (r > 0)
         {
           log_msg(LOG_ERR, "Failed to extract extension-release from '%s': systemd-dissect failed (%i)",
 		  image_name, r);
+	  unlink(cache_filename);
 	  return -EINVAL;
         }
     }
 
   r = load_ext_release(cache_filename, &image);
   if (r < 0)
-    return r;
+    {
+      // unlink the cache, maybe corrupt
+      unlink(cache_filename);
+      return r;
+    }
 
   if (image)
     *res = TAKE_PTR(image);
