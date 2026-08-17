@@ -11,7 +11,8 @@ ExecStart=/usr/libexec/sysextmgrd -s $SYSEXTMGRD_OPTS
 LockPersonality=yes
 MemoryDenyWriteExecute=yes
 NoNewPrivileges=yes
-PrivateDevices=yes
+# With PrivateDevices systemd-dissect --copy-from would require mountfsd
+#PrivateDevices=yes
 PrivateTmp=yes
 ProtectClock=yes
 ProtectControlGroups=yes
@@ -19,7 +20,8 @@ ProtectHome=yes
 ProtectKernelLogs=yes
 ProtectKernelModules=yes
 ProtectKernelTunables=yes
-ProtectSystem=strict
+# With strict systemd-dissect --copy-from would require mountfsd
+ProtectSystem=full
 ReadWritePaths=/var/lib/sysext-store /etc/extensions
 RestrictRealtime=yes
 RestrictSUIDSGID=yes
