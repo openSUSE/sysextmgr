@@ -13,7 +13,7 @@ project(
                   'c_std=gnu17',
 		  'warning_level=2'],
   license : ['GPL-2.0-or-later', 'LGPL-2.1-or-later'],
-  version : '1.1.0',
+  version : '1.2.0',
 )
 
 conf = configuration_data()
