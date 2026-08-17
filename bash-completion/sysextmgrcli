@@ -1,0 +1,83 @@
+# sysextmgrcli(1) completion                              -*- shell-script -*-
+
+_sysextmgrcli()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    local commands='create-json check cleanup dump-json dump-manifest install list merge-json update'
+    local generic_opts='-h --help -v --version'
+
+    # Find the subcommand: first word after "sysextmgrcli" that isn't an option.
+    local command i
+    for ((i = 1; i < cword; i++)); do
+        case ${words[i]} in
+            -*) ;;
+            *) command=${words[i]}; break ;;
+        esac
+    done
+
+    if [[ -z $command ]]; then
+        COMPREPLY=( $(compgen -W "$commands $generic_opts" -- "$cur") )
+        return
+    fi
+
+    local opts
+    case $command in
+        create-json)
+            opts='-n --name -i --input -o --output -h --help'
+            ;;
+        check)
+            opts='-p --prefix -q --quiet -v --verbose -h --help'
+            ;;
+        cleanup)
+            opts='-q --quiet -v --verbose -h --help'
+            ;;
+        dump-json|dump-manifest)
+            opts='-h --help'
+            ;;
+        install)
+            opts='-u --url -v --verbose -h --help'
+            ;;
+        list)
+            opts='-u --url -a --all -v --verbose -h --help'
+            ;;
+        merge-json)
+            opts='-o --output -h --help'
+            ;;
+        update)
+            opts='-p --prefix -q --quiet -u --url -v --verbose -h --help'
+            ;;
+        *)
+            opts=$generic_opts
+            ;;
+    esac
+
+    case $prev in
+        -i|--input|-o|--output)
+            _filedir
+            return
+            ;;
+        -p|--prefix)
+            _filedir -d
+            return
+            ;;
+        -u|--url|-n|--name)
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $(compgen -W "$opts" -- "$cur") )
+        return
+    fi
+
+    case $command in
+        dump-json|dump-manifest|merge-json)
+            _filedir json
+            ;;
+    esac
+} &&
+    complete -F _sysextmgrcli sysextmgrcli
+
+# ex: filetype=sh

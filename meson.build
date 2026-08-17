@@ -120,6 +120,15 @@ subdir('tmpfiles.d')
 # Manual pages
 subdir('man')
 
+# Bash completion
+bash_completion = dependency('bash-completion', required : false)
+if bash_completion.found()
+  bashcompletionsdir = bash_completion.get_variable(pkgconfig : 'completionsdir')
+else
+  bashcompletionsdir = datadir / 'bash-completion/completions'
+endif
+install_data('bash-completion/sysextmgrcli', install_dir : bashcompletionsdir)
+
 config_h = configure_file(
   output : 'config.h',
   configuration : conf)
