@@ -96,33 +96,57 @@ discover_images(const char *path, char ***result)
 
   if (num_dirs > 0)
     {
-      *result = malloc((num_dirs+1) * sizeof(char *));
+      *result = calloc(num_dirs + 1, sizeof(char *));
       if (*result == NULL)
 	return -ENOMEM;
-      (*result)[num_dirs] = NULL;
 
+      int j = 0;
       for (int i = 0; i < num_dirs; i++)
       {
 	if (de[i]->d_type == DT_LNK)
 	  {
 	    _cleanup_free_ char *fn = NULL;
+	    _cleanup_free_ char *linkpath = NULL;
+	    struct stat target_sb;
 	    char *p;
+
+	    r = join_path(path, de[i]->d_name, &linkpath);
+	    if (r < 0)
+	      {
+		free(de[i]);
+		return r;
+	      }
+
+	    /* stat() follows the symlink, so this fails if the
+	       target does not exist. Such dangling symlinks are
+	       ignored, since /etc/extensions may still reference
+	       an image which got removed from the store. */
+	    if (stat(linkpath, &target_sb) != 0)
+	      {
+		log_msg(LOG_WARNING, "Ignoring dangling symlink '%s'", linkpath);
+		free(de[i]);
+		continue;
+	      }
 
 	    r = readlink_malloc(path, de[i]->d_name, &fn);
 	    if (r < 0)
-	      return r;
+	      {
+		free(de[i]);
+		return r;
+	      }
 
 	    p = strrchr(fn, '/');
 	    if (p)
-	      (*result)[i] = strdup(++p);
+	      (*result)[j] = strdup(++p);
 	    else
-	      (*result)[i] = strdup(fn);
+	      (*result)[j] = strdup(fn);
 	  }
 	else
-	  (*result)[i] = strdup(de[i]->d_name);
+	  (*result)[j] = strdup(de[i]->d_name);
 
-	if ((*result)[i] == NULL)
+	if ((*result)[j] == NULL)
           return -ENOMEM;
+	j++;
 	free(de[i]);
       }
       free(de);
