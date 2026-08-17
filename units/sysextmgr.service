@@ -4,6 +4,7 @@ Documentation=man:sysextmgrd(8)
 
 [Service]
 Type=notify
+CacheDirectory=sysextmgrd
 Environment="SYSEXTMGRD_OPTS="
 EnvironmentFile=-/etc/default/sysextmgrd
 ExecStart=/usr/libexec/sysextmgrd -s $SYSEXTMGRD_OPTS
