@@ -367,7 +367,9 @@ image_manifest_from_url(const char *url, const char *image_name,
 
   jsonfn = malloc(strlen(image_name) + strlen(".manifest.gz") + 1);
   char *p = stpcpy(jsonfn, image_name);
-  p = endswith(jsonfn, ".raw");
+  p = endswith(jsonfn, ".sysext.raw");
+  if (!p)
+    p = endswith(jsonfn, ".raw");
   if (!p)
     {
       log_msg(LOG_ERR, "The image '%s' has no supported suffix", jsonfn);
