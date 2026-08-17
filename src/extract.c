@@ -39,8 +39,16 @@ extract(const char *path, const char *name, int outfd)
   if (asprintf(&erf, "/usr/lib/extension-release.d/extension-release.%s", name) < 0)
     return -ENOMEM;
 
-  /* remove .raw/.img */
-  erf[strlen(erf) - 4] = '\0';
+  if (endswith(name, ".sysext.raw") || endswith(name, ".sysext.img"))
+    {
+      /* remove .sysext.raw/.sysext.img */
+      erf[strlen(erf) - 11] = '\0';
+    }
+  else
+    {
+      /* remove .raw/.img */
+      erf[strlen(erf) - 4] = '\0';
+    }
 
   const char *const cmdline[] = {
 	  SYSTEMD_DISSECT_PATH,
