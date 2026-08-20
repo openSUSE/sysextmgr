@@ -13,6 +13,7 @@
 
 static bool arg_verbose = false;
 static bool arg_all = false;
+static char *arg_filter = NULL;
 
 struct list_images {
   bool success;
@@ -111,6 +112,17 @@ varlink_list_images (const char *url)
       if (r < 0)
         {
           fprintf(stderr, "Failed to add \"all\" to parameter list: %s\n", strerror(-r));
+          return r;
+        }
+    }
+
+  if (arg_filter)
+    {
+      r = sd_json_variant_merge_objectbo(&params,
+                                         SD_JSON_BUILD_PAIR("Filter", SD_JSON_BUILD_STRING(arg_filter)));
+      if (r < 0)
+        {
+          fprintf(stderr, "Failed to add \"filter\" to parameter list: %s\n", strerror(-r));
           return r;
         }
     }
@@ -247,12 +259,14 @@ main_list(int argc, char **argv)
   struct option const longopts[] = {
     {"url", required_argument, NULL, 'u'},
     {"verbose", no_argument, NULL, 'v'},
+    {"all", no_argument, NULL, 'a'},
+    {"filter", required_argument, NULL, 'f'},
     {NULL, 0, NULL, '\0'}
   };
   char *url = NULL;
   int c, r;
 
-  while ((c = getopt_long(argc, argv, "u:va", longopts, NULL)) != -1)
+  while ((c = getopt_long(argc, argv, "u:vaf:", longopts, NULL)) != -1)
     {
       switch (c)
         {
@@ -264,6 +278,9 @@ main_list(int argc, char **argv)
 	  break;
 	case 'a':
 	  arg_all = true;
+	  break;
+	case 'f':
+	  arg_filter = optarg;
 	  break;
         default:
           usage(EXIT_FAILURE);

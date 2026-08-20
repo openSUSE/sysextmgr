@@ -73,6 +73,7 @@ libeconf = dependency('libeconf', version : '>=0.7.5', required : true)
 smartcols = dependency('smartcols', required : true)
 libsystemd = dependency('libsystemd', version: '>= 257', required : true)
 libz = dependency('zlib', required : true)
+libpcre2 = dependency('libpcre2-8', required : true)
 #libzio = dependency('libzio', required : true)
 libzio = declare_dependency(dependencies : cc.find_library('zio'))
 
@@ -106,7 +107,7 @@ endif
 executable('sysextmgrd',
            sysextmgrd_c,
            include_directories : inc,
-           dependencies : [libeconf, libsystemd, libzio, libz],
+           dependencies : [libeconf, libsystemd, libzio, libz, libpcre2],
            install_dir : libexecdir,
            install : true)
 

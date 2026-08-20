@@ -15,7 +15,8 @@ struct config config = {
   .verify_signature = true,
   .url = NULL,
   .sysext_store_dir = SYSEXT_STORE_DIR,
-  .extensions_dir = EXTENSIONS_DIR
+  .extensions_dir = EXTENSIONS_DIR,
+  .filter = NULL
 };
 
 static econf_err
@@ -113,6 +114,9 @@ load_config(const char *defgroup)
       if (r < 0)
 	return r;
       r = getStringValueDef(key_file, defgroup, "extensions_dir", &config.extensions_dir, config.extensions_dir);
+      if (r < 0)
+	return r;
+      r = getStringValueDef(key_file, defgroup, "filter", &config.filter, config.filter);
       if (r < 0)
 	return r;
     }

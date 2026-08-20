@@ -1,0 +1,15 @@
+# Example sysextmgr.conf
+#
+# Only show sysext images for openSUSE MicroOS, whose (full) image name
+# ends with ".sysext.raw" and which do not start with "uki-rescue-" in
+# the output of "sysextmgrcli list". The filter is a PCRE2 regular
+# expression (see pcre2syntax(3)) matched against the image name.
+#
+# Install this as one of:
+#   /etc/sysextmgr/sysextmgr.conf
+#   /usr/share/sysextmgr/sysextmgr.conf
+# to make the filter the default for all users.
+
+[default]
+url=https://download.opensuse.org/tumbleweed/appliances/
+filter=^(?!uki-rescue-).*\.sysext\.raw$

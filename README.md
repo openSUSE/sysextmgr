@@ -114,6 +114,7 @@ The search order for configuration files:
 * *url* - URL from where to get sysext images
 * *sysext_store_dir* - Local directory where to store sysext images, default: `/var/lib/sysext-store`
 * *extensions_dir* - Directory with symlinks pointing to sysext images which systemd-sysext will enable at startup, default: `/etc/extensions`
+* *filter* - PCRE2 regular expression used by `sysextmgrcli list` to filter the images shown by name; can be overridden with `--filter`
 
 ### Example configuration file:
 ```
@@ -122,4 +123,12 @@ url=https://download.opensuse.org/repositories/devel:/microos:/sysext/images/
 
 [sysextmgrd]
 verbose=true
+```
+
+### Example configuration file with a filter:
+
+Only show sysext images ending with `.sysext.raw` which don't start with `uki-rescue-`:
+```
+[default]
+filter=^(?!uki-rescue-).*\.sysext\.raw$
 ```

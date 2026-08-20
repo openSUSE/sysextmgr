@@ -40,7 +40,7 @@ _sysextmgrcli()
             opts='-u --url -v --verbose -h --help'
             ;;
         list)
-            opts='-u --url -a --all -v --verbose -h --help'
+            opts='-u --url -a --all -f --filter -v --verbose -h --help'
             ;;
         merge-json)
             opts='-o --output -h --help'
@@ -62,7 +62,7 @@ _sysextmgrcli()
             _filedir -d
             return
             ;;
-        -u|--url|-n|--name)
+        -u|--url|-n|--name|-f|--filter)
             return
             ;;
     esac

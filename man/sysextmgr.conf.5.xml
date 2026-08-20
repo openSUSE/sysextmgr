@@ -97,6 +97,19 @@
           </para>
         </listitem>
       </varlistentry>
+
+      <varlistentry>
+        <term><varname>filter=</varname></term>
+        <listitem>
+          <para>
+            Specifies a PCRE2 regular expression (see
+            <citerefentry><refentrytitle>pcre2syntax</refentrytitle><manvolnum>3</manvolnum></citerefentry>)
+            used to filter the images shown by <command>sysextmgrcli list</command>. Only images
+            whose name matches are listed. Can be overridden with the <option>--filter</option>
+            command line option.
+          </para>
+        </listitem>
+      </varlistentry>
     </variablelist>
   </refsect1>
 
@@ -109,6 +122,11 @@ url=https://download.opensuse.org/tumbleweed/appliances/
 
 [sysextmgrd]
 verbose=true]]></programlisting>
+    </example>
+    <example>
+      <title>A sysextmgr.conf file only showing images ending with ".sysext.raw" which don't start with "uki-rescue-"</title>
+      <programlisting><![CDATA[[default]
+filter=^(?!uki-rescue-).*\.sysext\.raw$]]></programlisting>
     </example>
   </refsect1>
 

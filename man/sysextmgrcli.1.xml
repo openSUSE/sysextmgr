@@ -47,6 +47,10 @@
               <listitem><para>List images with incompatible architecture too.</para></listitem>
             </varlistentry>
             <varlistentry>
+              <term><option>-f</option>, <option>--filter</option> <replaceable>REGEX</replaceable></term>
+              <listitem><para>Only list images whose name matches the PCRE2 regular expression <replaceable>REGEX</replaceable>.</para></listitem>
+            </varlistentry>
+            <varlistentry>
               <term><option>-u</option>, <option>--url URL</option></term>
               <listitem><para>Remote directory URL with sysext images.</para></listitem>
             </varlistentry>

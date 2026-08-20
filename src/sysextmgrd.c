@@ -29,6 +29,9 @@
 #include <string.h>
 #include <ctype.h>
 
+#define PCRE2_CODE_UNIT_WIDTH 8
+#include <pcre2.h>
+
 #include <systemd/sd-daemon.h>
 #include <systemd/sd-varlink.h>
 #include <sys/stat.h>
@@ -339,6 +342,7 @@ struct parameters {
   bool all_architecture;
   char *install;
   char *prefix;
+  char *filter;
 };
 
 static void
@@ -347,6 +351,21 @@ parameters_free(struct parameters *var)
   var->url = mfree(var->url);
   var->install = mfree(var->install);
   var->prefix = mfree(var->prefix);
+  var->filter = mfree(var->filter);
+}
+
+static void
+pcre2_code_freep(pcre2_code **p)
+{
+  if (*p)
+    pcre2_code_free(*p);
+}
+
+static void
+pcre2_match_data_freep(pcre2_match_data **p)
+{
+  if (*p)
+    pcre2_match_data_free(*p);
 }
 
 static int
@@ -361,19 +380,24 @@ vl_method_list_images(sd_varlink *link, sd_json_variant *parameters,
     .all_architecture = false,
     .install = NULL,
     .prefix = NULL,
+    .filter = NULL,
   };
   static const sd_json_dispatch_field dispatch_table[] = {
     { "URL",     SD_JSON_VARIANT_STRING,  sd_json_dispatch_string,  offsetof(struct parameters, url), 0},
     { "Verbose", SD_JSON_VARIANT_BOOLEAN, sd_json_dispatch_stdbool, offsetof(struct parameters, verbose), 0},
     { "All", SD_JSON_VARIANT_BOOLEAN, sd_json_dispatch_stdbool, offsetof(struct parameters, all_architecture), 0},
+    { "Filter", SD_JSON_VARIANT_STRING, sd_json_dispatch_string, offsetof(struct parameters, filter), 0},
     {}
   };
   _cleanup_(free_os_releasep) struct osrelease *osrelease = NULL;
   _cleanup_(free_image_entry_list) struct image_entry **images = NULL;
   _cleanup_(free_image_entry_list) struct image_entry **images_remote = NULL;
   _cleanup_(free_image_entry_list) struct image_entry **images_local = NULL;
+  _cleanup_(pcre2_code_freep) pcre2_code *filter_regex = NULL;
+  _cleanup_(pcre2_match_data_freep) pcre2_match_data *filter_match_data = NULL;
   size_t n_remote = 0, n_local = 0, n_etc = 0;
   const char *url = NULL;
+  const char *filter = NULL;
   int r;
 
   log_msg(LOG_INFO, "Varlink method \"ListImages\" called...");
@@ -526,10 +550,40 @@ vl_method_list_images(sd_varlink *link, sd_json_variant *parameters,
   /* sort list */
   qsort(images, n, sizeof(struct image_entry *), image_cmp);
 
+  /* use filter from config if none got provided via parameter */
+  filter = p.filter ? p.filter : config.filter;
+
+  if (filter)
+    {
+      int errorcode;
+      PCRE2_SIZE erroroffset;
+
+      filter_regex = pcre2_compile((PCRE2_SPTR)filter, PCRE2_ZERO_TERMINATED, 0,
+				    &errorcode, &erroroffset, NULL);
+      if (filter_regex == NULL)
+        {
+	  PCRE2_UCHAR errbuf[256];
+
+	  pcre2_get_error_message(errorcode, errbuf, sizeof(errbuf));
+	  return api_error(link, "Invalid filter regular expression '%s' at offset %zu: %s",
+			    filter, erroroffset, errbuf);
+	}
+
+      filter_match_data = pcre2_match_data_create_from_pattern(filter_regex, NULL);
+      if (filter_match_data == NULL)
+        {
+	  reset_verbose_log();
+	  return out_of_memory_error(link);
+	}
+    }
+
   for (size_t i = 0; images[i] != NULL; i++)
     {
       if (images[i]->deps &&
-	  (p.all_architecture || extention_architecture_compatible(images[i]->deps->architecture)))
+	  (p.all_architecture || extention_architecture_compatible(images[i]->deps->architecture)) &&
+	  (!filter_regex ||
+	   pcre2_match(filter_regex, (PCRE2_SPTR)images[i]->image_name,
+		       PCRE2_ZERO_TERMINATED, 0, 0, filter_match_data, NULL) >= 0))
 	{
 	  log_msg(LOG_INFO, "--------");
 	  log_msg(LOG_INFO, "name: %s", images[i]->name);

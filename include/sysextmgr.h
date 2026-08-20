@@ -12,6 +12,7 @@ struct config {
   char *url;
   char *sysext_store_dir;
   char *extensions_dir;
+  char *filter;
 };
 
 extern struct config config;

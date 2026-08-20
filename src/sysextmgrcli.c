@@ -56,9 +56,10 @@ usage(int retval)
   fputs("\n", output);
 
   fputs("list - list all images and if they are compatible\n", output);
-  fputs("Options for merge-json:\n", output);
+  fputs("Options for list:\n", output);
   fputs("  -u, --url URL         Remote directory with sysext images\n", output);
   fputs("  -a, --all             List images with incompatible architecture too\n", output);
+  fputs("  -f, --filter REGEX    Only list images matching the PCRE2 regular expression\n", output);
   fputs("  -v, --verbose         Verbose output\n", output);
   fputs("\n", output);
 
