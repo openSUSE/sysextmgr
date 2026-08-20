@@ -89,16 +89,17 @@ load_os_release(const char *prefix, struct osrelease **res)
       return -1;
     }
 
-  if ((error = econf_getStringValue(key_file, NULL, "ID_LIKE", &(*res)->id_like)))
-    {
-      fprintf(stderr, "ERROR: couldn't get key 'ID_LIKE' from %s: %s\n",
-	      osrelease, econf_errString(error));
-      return -1;
-    }
-
   if ((error = econf_getStringValue(key_file, NULL, "VERSION_ID", &(*res)->version_id)))
     {
       fprintf(stderr, "ERROR: couldn't get key 'VERSION_ID' from %s: %s\n", osrelease, econf_errString(error));
+      return -1;
+    }
+
+  if ((error = econf_getStringValue(key_file, NULL, "ID_LIKE", &(*res)->id_like))
+      && error != ECONF_NOKEY)
+    {
+      fprintf(stderr, "ERROR: couldn't get key 'ID_LIKE' from %s: %s\n",
+	      osrelease, econf_errString(error));
       return -1;
     }
 
