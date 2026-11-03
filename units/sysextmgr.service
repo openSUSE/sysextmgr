@@ -13,7 +13,9 @@ MemoryDenyWriteExecute=yes
 NoNewPrivileges=yes
 # With PrivateDevices systemd-dissect --copy-from would require mountfsd
 #PrivateDevices=yes
-PrivateTmp=yes
+# Transactional Update and sysextmgr have to access the
+# same /tmp : /tmp/transactional-update-xxxxxxxx
+PrivateTmp=no
 ProtectClock=yes
 ProtectControlGroups=yes
 ProtectHome=yes
